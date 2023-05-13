@@ -20,7 +20,19 @@ public class SearchController {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    @GetMapping("/search")
+    // Endpoint for accessing all the data
+    @GetMapping("/")
+    public ResponseEntity<List<JsonItem>> allData() throws IOException {
+        Resource dataResource = resourceLoader.getResource("classpath:products.json");
+        InputStream inputStream = dataResource.getInputStream();
+        ObjectMapper mapper = new ObjectMapper();
+        List<JsonItem> jsonItems = mapper.readValue(inputStream, new TypeReference<List<JsonItem>>() {});
+        List<JsonItem> results = new ArrayList<>(jsonItems);
+        return ResponseEntity.ok(results);
+    }
+
+    // Endpoint for searching a title the returning all of it's data
+    @GetMapping("/cauta/title")
     public ResponseEntity<List<JsonItem>> search(@RequestParam String title) throws IOException {
         Resource dataResource = resourceLoader.getResource("classpath:products.json");
         InputStream inputStream = dataResource.getInputStream();
@@ -31,6 +43,20 @@ public class SearchController {
             if (item.getTitle().equals(title)) {
                 results.add(item);
             }
+        }
+        return ResponseEntity.ok(results);
+    }
+
+    // Endpoint for returning all titles
+    @GetMapping("/title")
+    public ResponseEntity<List<String>> allTitles() throws IOException {
+        Resource dataResource = resourceLoader.getResource("classpath:products.json");
+        InputStream inputStream = dataResource.getInputStream();
+        ObjectMapper mapper = new ObjectMapper();
+        List<JsonItem> jsonItems = mapper.readValue(inputStream, new TypeReference<List<JsonItem>>() {});
+        List<String> results = new ArrayList<>();
+        for (JsonItem item : jsonItems) {
+                results.add(item.getTitle());
         }
         return ResponseEntity.ok(results);
     }
